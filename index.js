@@ -12,26 +12,28 @@ const app = express();
 
 app.use(
   morgan(process.env.NODE_ENV === 'production' ? 'common' : 'dev', {
-    skip: (req, res) => process.env.NODE_ENV === 'test'
+    skip: () => process.env.NODE_ENV === 'test',
   })
 );
 
 app.use(
   cors({
-    origin: CLIENT_ORIGIN
+    origin: CLIENT_ORIGIN,
   })
 );
 
+/* eslint-disable no-console */
 function runServer(port = PORT) {
   const server = app
     .listen(port, () => {
       console.info(`App listening on port ${server.address().port}`);
     })
-    .on('error', err => {
+    .on('error', (err) => {
       console.error('Express failed to start');
       console.error(err);
     });
 }
+/* eslint-disable no-console */
 
 if (require.main === module) {
   dbConnect();
