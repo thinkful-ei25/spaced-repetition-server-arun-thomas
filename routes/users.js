@@ -59,7 +59,11 @@ router.post('/', validateNewUser, (req, res, next) => {
     .catch((err) => {
       if (err.code === 11000 && err.name === 'MongoError') {
         // Username already exists
-        err.status = 400;
+        const err = new Error('Username already taken');
+        err.location = 'username';
+        err.code = 422;
+        err.reason = 'ValidationError';
+
         return Promise.reject(err);
       }
     })
