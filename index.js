@@ -12,7 +12,7 @@ const app = express();
 
 app.use(
   morgan(process.env.NODE_ENV === 'production' ? 'common' : 'dev', {
-    skip: (req, res) => process.env.NODE_ENV === 'test',
+    skip: () => process.env.NODE_ENV === 'test',
   })
 );
 
