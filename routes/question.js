@@ -1,0 +1,24 @@
+'use strict';
+
+const express = require('express');
+
+const router = express.Router();
+
+router
+  .route('/')
+  .get((req, res) => {
+    res.json({
+      question: { text: 'How long does a L1 cache reference take to complete?' },
+    });
+  })
+  .post((req, res) => {
+    res.json({
+      question: {
+        text: 'How long does a L1 cache reference take to complete?',
+        answer: '0.5 ns',
+      },
+      feedback: { correct: true },
+    });
+  });
+
+module.exports = router;
