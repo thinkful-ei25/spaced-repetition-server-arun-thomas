@@ -50,11 +50,12 @@ router.post('/', validateNewUser, (req, res, next) => {
 
   User.hashPassword(password)
     .then((digest) => User.create({ username, firstName, lastName, password: digest }))
-    .then((result) => {
+    .then((user) => user.generateQuestions())
+    .then((user) => {
       res
         .status(201)
-        .location(`${req.baseUrl}/${result._id}`)
-        .json(result);
+        .location(`${req.baseUrl}/${user._id}`)
+        .json(user);
     })
     .catch((err) => {
       if (err.code === 11000 && err.name === 'MongoError') {

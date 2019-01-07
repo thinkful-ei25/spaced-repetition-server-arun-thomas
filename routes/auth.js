@@ -10,9 +10,17 @@ const router = express.Router();
 
 const localAuth = passport.authenticate('local', { session: false, failWithError: true });
 
-router.post('/login', localAuth, (req, res) => {
+router.post('/login', localAuth, (req, res, next) => {
   const authToken = createAuthToken(req.user);
-  res.json({ authToken });
+
+  Promise.resolve()
+    .then(() => {
+      if (!req.user.questions.length) {
+        return req.user.generateQuestions();
+      }
+    })
+    .then(() => res.json({ authToken }))
+    .catch(next);
 });
 
 const jwtAuth = passport.authenticate('jwt', { session: false, failWithError: true });

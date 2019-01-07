@@ -3,12 +3,15 @@
 const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
 
+const Question = require('./question');
+
 const userSchema = new mongoose.Schema(
   {
     username: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     firstName: String,
     lastName: String,
+    questions: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Question'}],
   },
   {
     toJSON: {
@@ -17,6 +20,7 @@ const userSchema = new mongoose.Schema(
         delete result._id;
         delete result.__v;
         delete result.password;
+        delete result.questions;
       },
     },
   }
@@ -28,6 +32,15 @@ userSchema.statics.hashPassword = function userHashPassword(password) {
 
 userSchema.methods.validatePassword = function userValidatePassword(password) {
   return bcrypt.compare(password, this.password);
+};
+
+userSchema.methods.generateQuestions = function userGenerateQuestions() {
+  return Question.find({}, 'id')
+    .then(questions => {
+      const questionIds = questions.map(question => question._id);
+      this.questions = questionIds;
+      return this.save();
+    });
 };
 
 module.exports = mongoose.model('User', userSchema);
