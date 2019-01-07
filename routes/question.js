@@ -1,8 +1,12 @@
 'use strict';
 
 const express = require('express');
+const passport = require('passport');
 
 const router = express.Router();
+
+const jwtAuth = passport.authenticate('jwt', { session: false, failWithError: true });
+router.use(jwtAuth);
 
 router
   .route('/')
