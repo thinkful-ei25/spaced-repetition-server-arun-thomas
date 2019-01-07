@@ -1,10 +1,10 @@
 'use strict';
 
-function LoginError(message, location) {
+function LoginError(message='Incorrect username or password') {
   this.name = 'LoginError';
-  this.reason = this.name;
+  this.reason = 'ValidationError';
   this.message = message;
-  this.location = location;
+  this.code = 401;
 
   this.stack = Error.captureStackTrace(this, LoginError);
 }

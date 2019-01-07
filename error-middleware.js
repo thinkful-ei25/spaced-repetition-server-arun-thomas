@@ -13,6 +13,9 @@ const error500 = (err, req, res, next) => {
   if (err.code) {
     const errBody = Object.assign({}, err, { message: err.message });
     res.status(err.code).json(errBody);
+  } else if (err.status) {
+    err.code = err.status;
+    res.status(err.code).json(err);
   } else {
     console.error(err);
     res.status(500).json({ message: 'Internal Server Error', code: 500 });

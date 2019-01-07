@@ -11,14 +11,14 @@ const localStrategy = new LocalStrategy((username, password, done) => {
     .then((result) => {
       user = result;
       if (!user) {
-        throw new LoginError('Incorrect username', 'username');
+        throw new LoginError();
       }
 
       return user.validatePassword(password);
     })
     .then((passwordIsValid) => {
       if (!passwordIsValid) {
-        throw new LoginError('Incorrect password', 'password');
+        throw new LoginError();
       }
 
       done(null, user);
