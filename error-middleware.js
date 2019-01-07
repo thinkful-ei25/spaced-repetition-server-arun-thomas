@@ -13,6 +13,9 @@ const error500 = (err, req, res, next) => {
   if (err.code) {
     const errBody = Object.assign({}, err, { message: err.message });
     res.status(err.code).json(errBody);
+  } else if (err.status) {
+    err.code = err.status;
+    res.status(err.code).json(err);
   } else {
     // eslint-disable-next-line no-console
     console.error(err);
