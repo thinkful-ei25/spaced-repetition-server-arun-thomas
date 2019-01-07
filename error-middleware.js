@@ -14,6 +14,7 @@ const error500 = (err, req, res, next) => {
     const errBody = Object.assign({}, err, { message: err.message });
     res.status(err.code).json(errBody);
   } else {
+    // eslint-disable-next-line no-console
     console.error(err);
     res.status(500).json({ message: 'Internal Server Error', code: 500 });
   }
