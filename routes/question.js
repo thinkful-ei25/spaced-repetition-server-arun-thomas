@@ -57,6 +57,7 @@ router
           question: currentQuestionData.question,
           feedback: {
             correct,
+            history: currentQuestionData.history,
           },
         });
       })
