@@ -15,9 +15,8 @@ router
 
   .get((req, res, next) => {
     User.findById(req.user.id)
-      .populate('questions')
       .then((user) => {
-        const { text, id } = user.questions[user.currentQuestionIndex];
+        const { text, id } = user.questionData[user.currentQuestionIndex].question;
         res.json({ question: { text, id } });
       })
       .catch(next);
@@ -39,24 +38,23 @@ router
     }
 
     let correct;
-    let currentQuestion;
+    let currentQuestionData;
     User.findById(req.user.id)
-      .populate('questions')
       .then((user) => {
-        currentQuestion = user.questions[user.currentQuestionIndex];
-        if (question.id !== currentQuestion.id) {
+        currentQuestionData = user.questionData[user.currentQuestionIndex];
+        if (question.id !== currentQuestionData.question.id) {
           const err = new Error('Invalid question id');
           err.code = 422;
           throw err;
         }
 
-        correct = parseFloat(answer) === currentQuestion.answer;
+        correct = parseFloat(answer) === currentQuestionData.question.answer;
 
-        return user.incrementQuestionIndex();
+        return user.recordAnswer(correct);
       })
       .then(() => {
         res.json({
-          question: currentQuestion,
+          question: currentQuestionData.question,
           feedback: {
             correct,
           },

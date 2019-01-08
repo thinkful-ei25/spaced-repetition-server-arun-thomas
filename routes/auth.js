@@ -15,7 +15,7 @@ router.post('/login', localAuth, (req, res, next) => {
 
   Promise.resolve()
     .then(() => {
-      if (!req.user.questions.length) {
+      if (!req.user.questionData.length) {
         return req.user.generateQuestions();
       }
     })

@@ -11,7 +11,15 @@ const userSchema = new mongoose.Schema(
     password: { type: String, required: true },
     firstName: String,
     lastName: String,
-    questions: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Question'}],
+    questionData: [
+      {
+        question: Question.schema,
+        history: {
+          correct: { type: Number, default: 0 },
+          incorrect: { type: Number, default: 0 },
+        },
+      },
+    ],
     currentQuestionIndex: { type: Number, default: 0 },
   },
   {
@@ -36,17 +44,19 @@ userSchema.methods.validatePassword = function userValidatePassword(password) {
 };
 
 userSchema.methods.generateQuestions = function userGenerateQuestions() {
-  return Question.find({}, 'id')
-    .then(questions => {
-      const questionIds = questions.map(question => question._id);
-      this.questions = questionIds;
-      return this.save();
-    });
+  return Question.find().then((questions) => {
+    this.questionData = questions.map((question) => ({ question }));
+    return this.save();
+  });
 };
 
-userSchema.methods.incrementQuestionIndex = function userIncrementQuestionIdx() {
+userSchema.methods.recordAnswer = function userRecordAnswer(answeredCorrectly) {
   const { currentQuestionIndex } = this;
-  this.currentQuestionIndex = (currentQuestionIndex + 1) % this.questions.length;
+  const currentQuestion = this.questionData[currentQuestionIndex];
+
+  currentQuestion.history[answeredCorrectly ? 'correct' : 'incorrect'] += 1;
+
+  this.currentQuestionIndex = (currentQuestionIndex + 1) % this.questionData.length;
   return this.save();
 };
 
