@@ -3,7 +3,6 @@
 const express = require('express');
 const passport = require('passport');
 
-const Question = require('../models/question');
 const User = require('../models/user');
 
 const router = express.Router();
@@ -17,22 +16,48 @@ router
     User.findById(req.user.id)
       .populate('questions')
       .then((user) => {
-        const { text, id } = user.questions[0];
+        const { text, id } = user.questions[user.currentQuestionIndex];
         res.json({ question: { text, id } });
       })
       .catch(next);
   })
   .post((req, res, next) => {
     const { question, answer } = req.body;
-    Question.findById(question.id)
-      .then((question) => {
-        const correct = parseFloat(answer) === question.answer;
 
+    if (!question || !question.id) {
+      const err = new Error('`question.id` required in request body');
+      err.code = 400;
+      throw err;
+    }
+
+    if(!answer) {
+      const err = new Error('`answer` required');
+      err.code = 400;
+      throw err;
+    }
+
+    let correct;
+    let currentQuestion;
+    User.findById(req.user.id)
+      .populate('questions')
+      .then((user) => {
+        currentQuestion = user.questions[user.currentQuestionIndex];
+        if (question.id !== currentQuestion.id) {
+          const err = new Error('Invalid question id');
+          err.code = 422;
+          throw err;
+        }
+
+        correct = parseFloat(answer) === currentQuestion.answer;
+
+        return user.incrementQuestionIndex();
+      })
+      .then(() => {
         res.json({
-          question,
+          question: currentQuestion,
           feedback: {
             correct,
-          },
+          }
         });
       })
       .catch(next);

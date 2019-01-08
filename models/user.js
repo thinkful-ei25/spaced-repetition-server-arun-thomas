@@ -12,6 +12,7 @@ const userSchema = new mongoose.Schema(
     firstName: String,
     lastName: String,
     questions: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Question'}],
+    currentQuestionIndex: { type: Number, default: 0 },
   },
   {
     toJSON: {
@@ -41,6 +42,12 @@ userSchema.methods.generateQuestions = function userGenerateQuestions() {
       this.questions = questionIds;
       return this.save();
     });
+};
+
+userSchema.methods.incrementQuestionIndex = function userIncrementQuestionIdx() {
+  const { currentQuestionIndex } = this;
+  this.currentQuestionIndex = (currentQuestionIndex + 1) % this.questions.length;
+  return this.save();
 };
 
 module.exports = mongoose.model('User', userSchema);
