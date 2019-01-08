@@ -12,6 +12,7 @@ router.use(jwtAuth);
 
 router
   .route('/')
+
   .get((req, res, next) => {
     User.findById(req.user.id)
       .populate('questions')
@@ -21,6 +22,7 @@ router
       })
       .catch(next);
   })
+
   .post((req, res, next) => {
     const { question, answer } = req.body;
 
@@ -30,7 +32,7 @@ router
       throw err;
     }
 
-    if(!answer) {
+    if (!answer) {
       const err = new Error('`answer` required');
       err.code = 400;
       throw err;
@@ -57,7 +59,7 @@ router
           question: currentQuestion,
           feedback: {
             correct,
-          }
+          },
         });
       })
       .catch(next);
