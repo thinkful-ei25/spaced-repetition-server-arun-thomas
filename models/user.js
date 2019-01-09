@@ -29,7 +29,8 @@ const userSchema = new mongoose.Schema(
         delete result._id;
         delete result.__v;
         delete result.password;
-        delete result.questions;
+        delete result.questionData;
+        delete result.currentQuestionIndex;
       },
     },
   }
