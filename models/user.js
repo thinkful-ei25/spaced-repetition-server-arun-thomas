@@ -66,8 +66,22 @@ userSchema.methods.recordAnswer = function userRecordAnswer(answeredCorrectly) {
 
   currentQuestion.history[answeredCorrectly ? 'correct' : 'incorrect'] += 1;
 
-  this.currentQuestionIndex = this.questionData[currentQuestionIndex].nextQuestion || 0;
+  this.shiftHead(2);
+
   return this.save();
+};
+
+userSchema.methods.shiftHead = function userShiftHead(numberOfPositions) {
+  const { currentQuestionIndex: toBeMoved } = this;
+
+  this.currentQuestionIndex = this.questionData[toBeMoved].nextQuestion;
+
+  let current = toBeMoved;
+  for (let i = 0 ; i < numberOfPositions && i < this.questionData.length - 1; i += 1) {
+    current = this.questionData[current].nextQuestion;
+  }
+  this.questionData[toBeMoved].nextQuestion = this.questionData[current].nextQuestion;
+  this.questionData[current].nextQuestion = toBeMoved;
 };
 
 module.exports = mongoose.model('User', userSchema);
