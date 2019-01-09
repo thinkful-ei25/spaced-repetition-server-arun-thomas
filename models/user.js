@@ -18,6 +18,8 @@ const userSchema = new mongoose.Schema(
           correct: { type: Number, default: 0 },
           incorrect: { type: Number, default: 0 },
         },
+        nextQuestion: Number,
+        weight: { type: Number, default: 1 },
       },
     ],
     currentQuestionIndex: { type: Number, default: 0 },
@@ -45,8 +47,16 @@ userSchema.methods.validatePassword = function userValidatePassword(password) {
 };
 
 userSchema.methods.generateQuestions = function userGenerateQuestions() {
+  if (this.questionData.length > 0) {
+    return Promise.resolve(this);
+  }
+
   return Question.find().then((questions) => {
-    this.questionData = questions.map((question) => ({ question }));
+    this.questionData = questions.map((question, index) => ({
+      question,
+      nextQuestion: index < questions.length - 1 ? index + 1 : null,
+    }));
+
     return this.save();
   });
 };
@@ -57,8 +67,28 @@ userSchema.methods.recordAnswer = function userRecordAnswer(answeredCorrectly) {
 
   currentQuestion.history[answeredCorrectly ? 'correct' : 'incorrect'] += 1;
 
-  this.currentQuestionIndex = (currentQuestionIndex + 1) % this.questionData.length;
+  if (answeredCorrectly) {
+    currentQuestion.weight *= 2;
+  } else {
+    currentQuestion.weight = 1;
+  }
+
+  this.shiftHead(currentQuestion.weight);
+
   return this.save();
+};
+
+userSchema.methods.shiftHead = function userShiftHead(numberOfPositions) {
+  const { currentQuestionIndex: toBeMoved } = this;
+
+  this.currentQuestionIndex = this.questionData[toBeMoved].nextQuestion;
+
+  let current = toBeMoved;
+  for (let i = 0 ; i < numberOfPositions && i < this.questionData.length - 1; i += 1) {
+    current = this.questionData[current].nextQuestion;
+  }
+  this.questionData[toBeMoved].nextQuestion = this.questionData[current].nextQuestion;
+  this.questionData[current].nextQuestion = toBeMoved;
 };
 
 module.exports = mongoose.model('User', userSchema);
