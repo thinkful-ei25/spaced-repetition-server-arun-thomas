@@ -18,6 +18,7 @@ const userSchema = new mongoose.Schema(
           correct: { type: Number, default: 0 },
           incorrect: { type: Number, default: 0 },
         },
+        nextQuestion: Number,
       },
     ],
     currentQuestionIndex: { type: Number, default: 0 },
@@ -45,8 +46,16 @@ userSchema.methods.validatePassword = function userValidatePassword(password) {
 };
 
 userSchema.methods.generateQuestions = function userGenerateQuestions() {
+  if (this.questionData.length > 0) {
+    return Promise.resolve(this);
+  }
+
   return Question.find().then((questions) => {
-    this.questionData = questions.map((question) => ({ question }));
+    this.questionData = questions.map((question, index) => ({
+      question,
+      nextQuestion: index < questions.length - 1 ? index + 1 : null,
+    }));
+
     return this.save();
   });
 };
@@ -57,7 +66,7 @@ userSchema.methods.recordAnswer = function userRecordAnswer(answeredCorrectly) {
 
   currentQuestion.history[answeredCorrectly ? 'correct' : 'incorrect'] += 1;
 
-  this.currentQuestionIndex = (currentQuestionIndex + 1) % this.questionData.length;
+  this.currentQuestionIndex = this.questionData[currentQuestionIndex].nextQuestion || 0;
   return this.save();
 };
 

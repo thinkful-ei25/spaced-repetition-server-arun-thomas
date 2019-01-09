@@ -13,12 +13,7 @@ const localAuth = passport.authenticate('local', { session: false, failWithError
 router.post('/login', localAuth, (req, res, next) => {
   const authToken = createAuthToken(req.user);
 
-  Promise.resolve()
-    .then(() => {
-      if (!req.user.questionData.length) {
-        return req.user.generateQuestions();
-      }
-    })
+  req.user.generateQuestions()
     .then(() => res.json({ authToken }))
     .catch(next);
 });
