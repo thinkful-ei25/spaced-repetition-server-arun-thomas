@@ -19,6 +19,7 @@ const userSchema = new mongoose.Schema(
           incorrect: { type: Number, default: 0 },
         },
         nextQuestion: Number,
+        weight: { type: Number, default: 1 },
       },
     ],
     currentQuestionIndex: { type: Number, default: 0 },
@@ -66,7 +67,13 @@ userSchema.methods.recordAnswer = function userRecordAnswer(answeredCorrectly) {
 
   currentQuestion.history[answeredCorrectly ? 'correct' : 'incorrect'] += 1;
 
-  this.shiftHead(2);
+  if (answeredCorrectly) {
+    currentQuestion.weight *= 2;
+  } else {
+    currentQuestion.weight = 1;
+  }
+
+  this.shiftHead(currentQuestion.weight);
 
   return this.save();
 };
