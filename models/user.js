@@ -80,6 +80,16 @@ userSchema.methods.recordAnswer = function userRecordAnswer(answeredCorrectly) {
   return this.save();
 };
 
+userSchema.methods.updateSession = function userUpdateSession(sessionId, answeredCorrectly) {
+  const currentSession = this.sessions.id(sessionId);
+
+  if (answeredCorrectly) {
+    currentSession.correct += 1;
+  } else {
+    currentSession.incorrect +=1;
+  }
+};
+
 userSchema.methods.shiftHead = function userShiftHead(numberOfPositions) {
   const { currentQuestionIndex: toBeMoved } = this;
 

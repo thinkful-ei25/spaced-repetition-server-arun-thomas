@@ -23,7 +23,7 @@ router
   })
 
   .post((req, res, next) => {
-    const { question, answer } = req.body;
+    const { question, answer, session } = req.body;
 
     if (!question || !question.id) {
       const err = new Error('`question.id` required in request body');
@@ -39,6 +39,7 @@ router
 
     let correct;
     let currentQuestionData;
+    let sessionId;
     User.findById(req.user.id)
       .then((user) => {
         currentQuestionData = user.questionData[user.currentQuestionIndex];
@@ -49,16 +50,18 @@ router
         }
 
         correct = parseFloat(answer) === currentQuestionData.question.answer;
-
+        sessionId = session.id;
+        user.updateSession(sessionId, correct);
         return user.recordAnswer(correct);
       })
-      .then(() => {
+      .then((user) => {
         res.json({
           question: currentQuestionData.question,
           feedback: {
             correct,
             history: currentQuestionData.history,
           },
+          session: user.sessions.id(sessionId),
         });
       })
       .catch(next);
