@@ -19,8 +19,8 @@ router.get('/', (req, res, next) => {
           id: question.id,
           text: question.text,
           history,
-        }
-      })
+        };
+      });
       res.json({ questions: returnedData});
     })
     .catch(next);

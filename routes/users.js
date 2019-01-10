@@ -1,10 +1,13 @@
 'use strict';
 
 const express = require('express');
+const passport = require('passport');
 
 const User = require('../models/user');
+const Session = require('../models/session');
 
 const router = express.Router();
+const jwtAuth = passport.authenticate('jwt', { session: false, failWithError: true });
 
 function validateNewUser(req, res, next) {
   const { username, password } = req.body;
@@ -70,5 +73,19 @@ router.post('/', validateNewUser, (req, res, next) => {
     })
     .catch(next);
 });
+
+// added for sessions
+router.post('/session', jwtAuth, (req, res, next) => {
+  let session;
+  User.findById(req.user.id)
+    .then((user) => {
+      session = user.sessions.create({});
+      user.sessions.push(session);
+      return user.save();
+    })
+    .then(user => res.json({session}))
+    .catch(next);
+});
+
 
 module.exports = router;

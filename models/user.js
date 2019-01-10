@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
 
 const Question = require('./question');
+const Session = require('./session');
 
 const userSchema = new mongoose.Schema(
   {
@@ -23,6 +24,7 @@ const userSchema = new mongoose.Schema(
       },
     ],
     currentQuestionIndex: { type: Number, default: 0 },
+    sessions: [Session.schema],
   },
   {
     toJSON: {
