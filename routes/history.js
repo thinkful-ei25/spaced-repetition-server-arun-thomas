@@ -26,4 +26,14 @@ router.get('/', (req, res, next) => {
     .catch(next);
 });
 
+router.get('/sessions', (req, res, next) => {
+  User.findById(req.user.id)
+    .then(user => user.pruneSessions())
+    .then((user) => {
+      const { sessions } = user;
+      res.json({ sessions });
+    })
+    .catch(next);
+});
+
 module.exports = router;

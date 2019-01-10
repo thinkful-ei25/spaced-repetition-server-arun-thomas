@@ -93,4 +93,14 @@ userSchema.methods.shiftHead = function userShiftHead(numberOfPositions) {
   this.questionData[current].nextQuestion = toBeMoved;
 };
 
+userSchema.methods.pruneSessions = function userPruneSessions() {
+  const prunedSessions = this.sessions.filter(
+    (session) => session.correct || session.incorrect
+  );
+
+  this.sessions = prunedSessions;
+
+  return this.save();
+};
+
 module.exports = mongoose.model('User', userSchema);
