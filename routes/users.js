@@ -80,10 +80,8 @@ router.post('/session', jwtAuth, (req, res, next) => {
   User.findById(req.user.id)
     .then((user) => {
       session = user.sessions.create({});
-      user.sessions.unshift(session);
-      return user.save();
+      res.json({ session });
     })
-    .then(user => res.json({session}))
     .catch(next);
 });
 

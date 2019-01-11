@@ -80,13 +80,20 @@ userSchema.methods.recordAnswer = function userRecordAnswer(answeredCorrectly) {
   return this.save();
 };
 
-userSchema.methods.updateSession = function userUpdateSession(sessionId, answeredCorrectly) {
-  const currentSession = this.sessions.id(sessionId);
+userSchema.methods.updateSession = function userUpdateSession(
+  sessionId,
+  answeredCorrectly
+) {
+  let currentSession = this.sessions.id(sessionId);
+  if (!currentSession) {
+    currentSession = this.sessions.create({_id: sessionId});
+    this.sessions.unshift(currentSession);
+  }
 
   if (answeredCorrectly) {
     currentSession.correct += 1;
   } else {
-    currentSession.incorrect +=1;
+    currentSession.incorrect += 1;
   }
 };
 
